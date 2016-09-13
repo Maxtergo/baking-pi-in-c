@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>FAST NU | BPC</title>
+<meta http-equiv="Content-Language" content="English" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+
+<div id="wrap">
+<div id="header">
+</br>
+</br>
+<h1>Baking Pi On C</h1>
+<h3>A guide to make Operating System on Raspberry Pi in C</h3>
+</div>
+
+<div id="right">
+
+<h2><a href="#">Lesson 3 Ok03</a></h2>
+<div class="articles"><p>
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+  <HTML>
+  <!--  		@page { margin: 0.79in }  		P { margin-bottom: 0.08in }  	-->
+  <BODY DIR="LTR">
+</p>
+  <p>
+    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+    <HTML>
+    <!--  		@page { margin: 0.79in }  		P { margin-bottom: 0.08in }  	-->
+    <BODY DIR="LTR">
+  </p>
+  <p>There is no new idea  introduced in this lesson with respect to Raspberry Pi. What all this  lesson does is generalizes the code that I have created In lesson 1  and 2 by making functions for them. </p>
+  <p>Replace the code in the  file execute.c by the following </p>
+  <div class="codes">
+    <p>#include &lt;sys/types.h&gt;</p>
+    <p>	void execute(void);<br>
+      <br>
+      /* Base address of Function Select Register 0 */<br>
+      #define GPIO_BASE 0x20200000</p>
+    <p>/* Base address of Function Select Register 1 */<br>
+      #define GPIO_PIN_FUNC (GPIO_BASE+4)</p>
+    <p>/* Base address of Output Set Register 0 */<br>
+      #define GPIO_PIN_ON (GPIO_BASE+28)</p>
+    <p>/* Base address of Output Clear Register 0 */<br>
+      #define GPIO_PIN_OFF (GPIO_BASE+40)</p>
+    <p>/*<br>
+      *	The function repeatedly turn on and turn off the 16th GPIO pin<br>
+      */<br>
+      void execute(void) { <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;register long int pinNum = 16;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;register long int counter = 0;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Defining output operation to the 16th GPIO */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SetGpioFunction(16,1);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(1==1){<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Turning on the ACT LED */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SetGpio(pinNum,0); </p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Busy Waiting */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter = 0x3F0000; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(counter--);</p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Turning off the ACT LED */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SetGpio(pinNum,1); </p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Busy Waiting */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter = 0x3F0000; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(counter--);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      }<br>
+    </p>
+  
+</div>
+  <p>Put the following code in  a file gpio.c</p>
+  <div class="codes">
+    <p>#include &lt;sys/types.h&gt;<br>
+      #define GPIO_BASE 0x20200000 //538968064 in decimal</p>
+    <p>/* Base address of Function Select Register 1 */<br>
+      #define GPIO_PIN_FUNC (GPIO_BASE+4)</p>
+    <p>/* Base address of Output Set Register 0 */<br>
+      #define GPIO_PIN_ON (GPIO_BASE+28)</p>
+    <p>/* Base address of Output Clear Register 0 */<br>
+      #define GPIO_PIN_OFF (GPIO_BASE+40)</p>
+    <p>void SetGpioFunction( register long int pinNum , register long int pinFunc);<br>
+      void SetGpio(register long int pinNum , register long int pinVal  );</p>
+    <p>/*<br>
+      *	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Given GPIO pin number pinNum(0-53) and its operation pinFunc(0-7), <br>
+      *	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the function define specified operation to that GPIO pin.<br>
+      */ <br>
+      void SetGpioFunction( register long int pinNum , register long int pinFunc){<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;register long int  gpioAddress = GPIO_BASE;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Obtaining the address of the Function Select Register which controls the given pin number  */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(pinNum &gt; 9){<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pinNum -= 10;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gpioAddress += 4;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Defining the given pin function by setting the designated 3 bits of Function Select Register for the given pin number to pinFunc*/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pinNum += pinNum &lt;&lt; 1; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pinFunc = pinFunc &lt;&lt; pinNum; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*((unsigned int *)(gpioAddress)) = pinFunc;<br>
+      }</p>
+    <p>/*<br>
+      *	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Given GPIO pin number pinNum(0-53) and pin value which could be<br>
+      *	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;either 0 or 1 for turning pin or off respectively.<br>
+      */<br>
+      void SetGpio(register long int pinNum, register long int pinVal ){<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;register long int gpioAddress = GPIO_BASE;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;register long int calculatePin;</p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Multiplying the pinNum by 3 and adding it to the gpioAddress */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;calculatePin = pinNum &gt;&gt; 5; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;calculatePin = calculatePin &lt;&lt; 2; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gpioAddress += calculatePin;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(gpioAddress == GPIO_BASE){<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pinNum = pinNum &amp; 31; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(pinVal == 0)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Setting the appropraite bit of Output Set Register to 1 to disable output to the given pin */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*((unsigned int *)(GPIO_PIN_ON)) = 1 &lt;&lt; pinNum; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Setting the appropraite bit of Output Clear Register to 1 to disable output to the given pin */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*((unsigned int *)(GPIO_PIN_OFF)) = 1 &lt;&lt; pinNum; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      }<br>
+    </p>
+    <p>
+  <a href="downloads/ok03.zip">Complete Solution Of this Lesson</a> </p>
+  </div>
+</div>
+</div>
+
+<div id="left"> 
+
+<h3>Web Site Materials</h3>
+<ul>
+<li><a href="index.html">Introduction</a></li> 
+<li><a href="ok01.html">Lesson 1 OK01</a></li> 
+<li><a href="ok02.html">Lesson 2 OK02</a></li> 
+<li><a href="ok03.html">Lesson 3 OK03</a></li>
+<li><a href="ok04.html">Lesson 4 OK04</a></li> 
+<li><a href="ok05.html">Lesson 5 OK05</a></li> 
+<li><a href="screen01.html">Lesson 6 Screen01</a></li> 
+<li><a href="screen02.html">Lesson 7 Screen02</a></li> 
+<li><a href="screen03.html">Lesson 8 Screen03</a></li>
+<li><a href="downloads.html">Downloads</a></li>
+<li><a href="credits.html">Credits</a></li>
+<li><a href="process-scheduling.html">Process Scheduling Project</a></li>
+</ul>
+
+</div>
+<div style="clear: both;"> </div>
+
+<div id="footer">
+Created by <a href="http://www.maxtergo.com/">Team Maxtergo</a>
+</div>
+
+
+
+</div>
+
+
+</body>
+</html>

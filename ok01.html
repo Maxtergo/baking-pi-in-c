@@ -1,0 +1,280 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>FAST NU | BPC</title>
+<meta http-equiv="Content-Language" content="English" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+
+<div id="wrap">
+<div id="header">
+</br>
+</br>
+<h1>Baking Pi On C</h1>
+<h3>A guide to make Operating System on Raspberry Pi in C</h3>
+</div>
+
+<div id="right">
+
+<h2><a href="#">Lesson 1 Ok01</a></h2>
+<div class="articles">
+  In  this lesson we will get our hands dirty with the Raspberry Pi GPIO. Please read &quot;Downloads&quot; before this lesson.
+    <p>Insert  the code below in a file named as main.s  </p>
+  <div class="codes">
+    <p>.section .init<br />
+      .globl _start<br />
+      _start:</p>
+    <p>b main</p>
+    <p>.section .text</p>
+    <p>main:<br />
+      /*<br />
+      *	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Setting up the stack befor calling the execute function as per C calling conventions.<br />
+      */<br />
+      mov sp,#0x8000<br />
+      bl execute  </p>
+</div>
+  <p><strong>Decsription:</strong> The code above just provide a template for calling C programs  initially. This code should be inserted without any change in the  designated OS template folder.  </p>
+  <p>Insert  the code in a file name execute.c</p>
+  <p> </p>
+  <div class="codes">
+    <p>#include &lt;sys/types.h&gt;</p>
+    <p>void execute(void);</p>
+    <p>/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Base address of Function Select Register 0 */<br />
+      #define GPIO_BASE 0x20200000 </p>
+    <p>/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Base address of Function Select Register 1 */<br />
+      #define GPIO_PIN_FUNC (GPIO_BASE+4)</p>
+    <p>/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Base address of Output Set Register 0 */<br />
+      #define GPIO_PIN_ON (GPIO_BASE+28)</p>
+    <p>/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Base address of Output Clear Register 0 */<br />
+      #define GPIO_PIN_OFF (GPIO_BASE+40)<br />
+      <br />
+      /*<br />
+      *	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&The function enables output to the 16th GPIO pin<br />
+      */<br />
+      void execute(void) {<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Defining output operation to the 16th GPIO pin by setting bits 18-20 of Function select Register 1 to 001 */<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*((unsigned int *)(GPIO_PIN_FUNC)) = 1 &lt;&lt; 18; </p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Clearing output to the 16th GPIO pin by setting the 16th bit of Ouput Clear Register 0 to 1*/<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*((unsigned int *)(GPIO_PIN_OFF)) = 1 &lt;&lt; 16; </p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Looping forever */<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (1 == 1);<br />
+      }<br />
+    </p>
+  
+  </div>
+  <p><strong>Description: </strong>Before directly explaining the code first I  need explain a bit about GPIO internals on Raspberry Pi.<strong> </strong>On Raspberry Pi there is a set of 54 GPIO  pins which are controlled by 10 registers named as <strong>Function  Select Registers</strong>. Each <strong>Function  Select Register</strong> defines the operations of 10  GPIO pins except for the last <strong>Function Select  Register</strong> which defines operation of last 4  GPIO pins(50-53). Each register is 4 byte in size. The following  table found from the Broadcom manual for peripherals provides further  details</p>
+  <p><BR>
+</p>
+  <TABLE WIDTH="638" BORDER="1" BORDERCOLOR="#00000a" CELLPADDING="7" CELLSPACING="0">
+    <COL WIDTH="113">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="113">
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>Physical Address</p></TD>
+      <TD WIDTH="114"><p>Field Name</p></TD>
+      <TD WIDTH="114"><p>Description</p></TD>
+      <TD WIDTH="114"><p>Size(bits)</p></TD>
+      <TD WIDTH="113"><p>Read/Write</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x20200000</p></TD>
+      <TD WIDTH="114"><p>GPFSEL0</p></TD>
+      <TD WIDTH="114"><p>GPIO Function Select 0</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x20200004</p></TD>
+      <TD WIDTH="114"><p>GPFSEL1</p></TD>
+      <TD WIDTH="114"><p>GPIO Function Select 1</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x20200008</p></TD>
+      <TD WIDTH="114"><p>GPFSEL2</p></TD>
+      <TD WIDTH="114"><p>GPIO Function Select 2</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x2020000C</p></TD>
+      <TD WIDTH="114"><p>GPFSEL3</p></TD>
+      <TD WIDTH="114"><p>GPIO Function Select 3</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x20200010</p></TD>
+      <TD WIDTH="114"><p>GPFSEL4</p></TD>
+      <TD WIDTH="114"><p>GPIO Function Select 4</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x20200014</p></TD>
+      <TD WIDTH="114"><p>GPFSEL5</p></TD>
+      <TD WIDTH="114"><p>GPIO Function Select 5</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+  </TABLE>
+  <p><BR>
+  The way  a <strong>Function Select Register</strong> define operation of ten pins is as follows: Each <strong>Function  Select Register</strong> is logically divided into  three bits where the first three bits define operations of 1st  GPIO pin the next 3 bits define the operation of 2nd  GPIO and so on and so forth. And since three bits are given for each  pin which simply means each pin can perform 8 operations. What we will  be focusing here is the output operation of GPIO pin for which we  need the set the 3 bits to 001. <BR>
+  </p>
+  <p>Reading  the manual I found the further information </p>
+  <p> 000 =  GPIO Pin is an input</p>
+  <p> 001 =  GPIO Pin is an output</p>
+  <p>100 =  GPIO Pin takes alternate function 0</p>
+  <p>101 =  GPIO Pin takes alternate function 1</p>
+  <p>110 =  GPIO Pin takes alternate function 2</p>
+  <p>111 =  GPIO Pin takes alternate function 3</p>
+  <p>011 =  GPIO Pin takes alternate function 4</p>
+  <p>010 =  GPIO Pin takes alternate function 5  </p>
+  <p>Now let&rsquo;s say I want to  enable output to the 16th  GPIO pin. This is what the above provided code is doing. So to  implement this task we need to do the following things</p>
+  <OL>
+    <LI>
+      <p>Find the function  	select register which define operations of GPIO pin 16. In our case  	it is the second function select register which controls (GPIO pin  	10 – GPIO pin 19). The register is at location 0x20200004.</p>
+    <LI>
+      <p>Next we need to know  	what operation we want to define since we want to define output  	operation so we need to set the 3 bits corresponding to Pin 16 to  	001 in 2nd  	function select register. In our case pin number is 16 so we need to  	set the bits 20-18    (6 *3 = 18) to 001.</p>
+    </OL>
+  <p>Finally we need to clear  the 16th GPIO pin.  It is important to clear any GPIO pin on which we want to have output  because it is a hardware requirement for Raspberry Pi. For this  purpose we have output clear registers on raspberry pi which have  designated task of clearing output to any given GPIO pin. Reading the  manual I found the further information about output clear registers  which is provided below.</p>
+  <TABLE WIDTH="638" BORDER="1" BORDERCOLOR="#00000a" CELLPADDING="7" CELLSPACING="0">
+    <COL WIDTH="113">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="113">
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>Physical Address</p></TD>
+      <TD WIDTH="114"><p>Field Name</p></TD>
+      <TD WIDTH="114"><p>Description</p></TD>
+      <TD WIDTH="114"><p>Size(bits)</p></TD>
+      <TD WIDTH="113"><p>Read/Write</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x20200028</p></TD>
+      <TD WIDTH="114"><p>GPCLR0</p></TD>
+      <TD WIDTH="114"><p>GPIO Pin Output Clear 0</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x2020002C</p></TD>
+      <TD WIDTH="114"><p>GPCLR1</p></TD>
+      <TD WIDTH="114"><p>GPIO Pin Output Clear 1</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+  </TABLE>
+  <p><BR>
+  </p>
+  <p>GPIO Output Clear Register  0</p>
+  <TABLE WIDTH="638" BORDER="1" BORDERCOLOR="#00000a" CELLPADDING="7" CELLSPACING="0">
+    <COL WIDTH="113">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="113">
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>Bit</p></TD>
+      <TD WIDTH="114"><p>Field Name</p></TD>
+      <TD WIDTH="114"><p>Description</p></TD>
+      <TD WIDTH="114"><p>Type</p></TD>
+      <TD WIDTH="113"><p>Reset</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>31-0</p></TD>
+      <TD WIDTH="114"><p>CLRn(n= 0..31)</p></TD>
+      <TD WIDTH="114"><p>0 = No effect</p>
+        <p>1 = Clear GPIO pin n</p></TD>
+      <TD WIDTH="114"><p>R/W</p></TD>
+      <TD WIDTH="113"><p>0</p></TD>
+    </TR>
+  </TABLE>
+  <p><BR>
+  </p>
+  <p>GPIO Output Clear Register  1</p>
+  <TABLE WIDTH="638" BORDER="1" BORDERCOLOR="#00000a" CELLPADDING="7" CELLSPACING="0">
+    <COL WIDTH="113">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="113">
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>Bit</p></TD>
+      <TD WIDTH="114"><p>Field Name</p></TD>
+      <TD WIDTH="114"><p>Description</p></TD>
+      <TD WIDTH="114"><p>Type</p></TD>
+      <TD WIDTH="113"><p>Reset</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>31-22</p></TD>
+      <TD WIDTH="114"><p>-</p></TD>
+      <TD WIDTH="114"><p>Reserved</p></TD>
+      <TD WIDTH="114"><p>R</p></TD>
+      <TD WIDTH="113"><p>0</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0-21</p></TD>
+      <TD WIDTH="114"><p>CLRn(n=32 .. 53)</p></TD>
+      <TD WIDTH="114"><p>0 = No effect</p>
+        <p>1 = Clear GPIO pin n </p></TD>
+      <TD WIDTH="114"><p>R/W</p></TD>
+      <TD WIDTH="113"><p>0</p></TD>
+    </TR>
+  </TABLE>
+  <p><BR>
+  </p>
+  <p>In our case we need to  clear output to the 16th  GPIO pin so we need to set the 16th  bit of Output Clear Register 0 to 1 .</p>
+  <p>Now what we have basically  done in the code execute.c  is following</p>
+  <UL>
+    <LI>
+      <p>First we set the  	output to the 16th  	GPIO pin by using the appropriate function select register</p>
+    <LI>
+      <p>Then we cleared  	output to the 16th  	GPIO pin by using appropriate output clear register</p>
+    </UL>
+  <p>If you run the code you  will find ACT led blinking this is because ACT LED is wired to the  16th GPIO pin.</p>
+  <p>Hope after reading the  above detail you can get an idea of how we can control any desired  GPIO pin for any desired function you want. I encourage you to try  out other Raspberry Pi GPIO pins.<br />
+  </p>
+<p>
+  <a href="downloads/ok01.zip">Complete Solution Of this Lesson</a> </p>
+</div>
+</div>
+
+<div id="left"> 
+
+<h3>Web Site Materials</h3>
+<ul>
+<li><a href="index.html">Introduction</a></li> 
+<li><a href="ok01.html">Lesson 1 OK01</a></li> 
+<li><a href="ok02.html">Lesson 2 OK02</a></li> 
+<li><a href="ok03.html">Lesson 3 OK03</a></li>
+<li><a href="ok04.html">Lesson 4 OK04</a></li> 
+<li><a href="ok05.html">Lesson 5 OK05</a></li> 
+<li><a href="screen01.html">Lesson 6 Screen01</a></li> 
+<li><a href="screen02.html">Lesson 7 Screen02</a></li> 
+<li><a href="screen03.html">Lesson 8 Screen03</a></li>
+<li><a href="downloads.html">Downloads</a></li>
+<li><a href="credits.html">Credits</a></li>
+<li><a href="process-scheduling.html">Process Scheduling Project</a></li>
+</ul>
+
+</div>
+<div style="clear: both;"> </div>
+
+<div id="footer">
+Created by <a href="http://www.maxtergo.com/">Team Maxtergo</a>
+</div>
+
+
+
+</div>
+
+
+</body>
+</html>

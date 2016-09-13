@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>FAST NU | BPC</title>
+<meta http-equiv="Content-Language" content="English" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+
+<div id="wrap">
+<div id="header">
+</br>
+</br>
+<h1>Baking Pi On C</h1>
+<h3>A guide to make Operating System on Raspberry Pi in C</h3>
+</div>
+
+<div id="right">
+
+<h2><a href="#">Lesson 5 Ok05</a></h2>
+<div class="articles">
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+  <HTML>
+  <!--  		@page { margin: 0.79in }  		P { margin-bottom: 0.08in }  	-->
+  <BODY DIR="LTR">
+  <p>In this lesson nothing new  has been taught with respect to the Raspberry Pi. What this lesson  actually teaches you is that how can you do some cool things with  what have you done so far. The cool thing what we have done here is  to flash the SOS Morse Code pattern (…---…) </p>
+  <p>Replace the code in the  file execute.c by the following code</p>
+  <div class="codes">
+    <p>#include &lt;sys/types.h&gt;</p>
+    <p>void execute(void);<br>
+      <br>
+      /* Base address of Function Select Register 0 */<br>
+      #define GPIO_BASE 0x20200000</p>
+    <p>/* Base address of Function Select Register 1 */<br>
+      #define GPIO_PIN_FUNC (GPIO_BASE+4)</p>
+    <p>/* Base address of Output Set Register 0 */<br>
+      #define GPIO_PIN_ON (GPIO_BASE+28)</p>
+    <p>/* Base address of Output Clear Register 0 */<br>
+      #define GPIO_PIN_OFF (GPIO_BASE+40)</p>
+    <p>/*<br>
+      *	The function turns on and off the ACT LED according to a specified pattern<br>
+      */<br>
+      void execute(void){<br>
+      register long int pinNum = 16;<br>
+      /* Defining the pattern where each 1 in the pattern correspond to turning the ACT LED ON and <br>
+      each 0 correspond to turning the ACT LED OFF <br>
+      */<br>
+      static int pattern[32] = {1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1,0}; <br>
+      register long int counter = 0;<br>
+      /* Setting the amount of time we want to delay in Micro seconds */<br>
+      register long int delay = 50000;<br>
+      /* Defining output operation to the 16th GPIO */<br>
+      SetGpioFunction(pinNum,1);<br>
+      while( 1 == 1 ){<br>
+      SetGpio(pinNum, pattern[counter]); //'On and Off' depends on pattern value<br>
+      Wait(delay);<br>
+      counter++;<br>
+      if(counter &gt; 31){<br>
+      counter = 0; //Reset Counter<br>
+      }<br>
+      }<br>
+      }<br>
+    </p>
+  </div>
+  <p>If you run the code you  will observe that Raspberry Pi flashes out a sequences of 3 short  pulses, 3 long pulses and then 3 more short pulses. After a delay the  pattern should repeat. </p>
+  <p>
+  <a href="downloads/ok05.zip">Complete Solution Of this Lesson</a> </p>
+</div>
+</div>
+
+<div id="left"> 
+
+<h3>Web Site Materials</h3>
+<ul>
+<li><a href="index.html">Introduction</a></li> 
+<li><a href="ok01.html">Lesson 1 OK01</a></li> 
+<li><a href="ok02.html">Lesson 2 OK02</a></li> 
+<li><a href="ok03.html">Lesson 3 OK03</a></li>
+<li><a href="ok04.html">Lesson 4 OK04</a></li> 
+<li><a href="ok05.html">Lesson 5 OK05</a></li> 
+<li><a href="screen01.html">Lesson 6 Screen01</a></li> 
+<li><a href="screen02.html">Lesson 7 Screen02</a></li> 
+<li><a href="screen03.html">Lesson 8 Screen03</a></li>
+<li><a href="downloads.html">Downloads</a></li>
+<li><a href="credits.html">Credits</a></li>
+<li><a href="process-scheduling.html">Process Scheduling Project</a></li>
+</ul>
+
+</div>
+<div style="clear: both;"> </div>
+
+<div id="footer">
+Created by <a href="http://www.maxtergo.com/">Team Maxtergo</a>
+</div>
+
+
+
+</div>
+
+
+</body>
+</html>

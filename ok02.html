@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>FAST NU | BPC</title>
+<meta http-equiv="Content-Language" content="English" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+
+<div id="wrap">
+<div id="header">
+</br>
+</br>
+<h1>Baking Pi On C</h1>
+<h3>A guide to make Operating System on Raspberry Pi in C</h3>
+</div>
+
+<div id="right">
+
+<h2><a href="#">Lesson 2 Ok02</a></h2>
+<div class="articles"><p>
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+  <HTML>
+  <!--  		@page { margin: 0.79in }  		P { margin-bottom: 0.08in }  	-->
+  <BODY DIR="LTR">
+</p>
+  <p> This  lesson builds on lesson 1, by causing the ACT LED to turn on and off  repeatedly</p>
+  <p>Replace the code in file  execute.c by the following  </p>
+  <div class="codes">
+    <p>#include &lt;sys/types.h&gt;</p>
+    <p>void execute(void);</p>
+    <p>/* Base address of Function Select Register 0 */<br>
+      #define GPIO_BASE 0x20200000 </p>
+    <p>/* Base address of Function Select Register 1 */<br>
+      #define GPIO_PIN_FUNC (GPIO_BASE+4)</p>
+    <p>/* Base address of Output Set Register 0 */<br>
+      #define GPIO_PIN_ON (GPIO_BASE+28)</p>
+    <p>/* Base address of Output Clear Register 0 */<br>
+      #define GPIO_PIN_OFF (GPIO_BASE+40)<br>
+      <br>
+      /*<br>
+      *	The function repeatedly turn on and turn off the 16th GPIO pin<br>
+      */<br>
+      void execute(void) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;register int counter = 0;</p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Defining output operation to the 16th GPIO pin by setting bits 18-20 of Function select Register 1 to 001 */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*((unsigned int *)(GPIO_PIN_FUNC)) = (1 &lt;&lt; 18);</p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (1 == 1) { </p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Turning on the ACT LED */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Clearing output to the 16th GPIO pin by setting the 16th bit of Ouput Clear Register 0 to 1*/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*((unsigned int *)(GPIO_PIN_OFF)) = (1 &lt;&lt; 16); </p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Busy Waiting */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter = 0x3f0000; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (counter--);</p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Turning off the ACT LED */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Setting output to the 16th GPIO pin by setting the 16th bit of Ouput Set Register 0 to 1*/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*((unsigned int *)(GPIO_PIN_ON)) = ( 1 &lt;&lt; 16 ); </p>
+    <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Busy Waiting */<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter = 0x3f0000; <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (counter--);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      } <br>
+    </p>
+  
+</div>
+  <p><strong>Description:</strong> First of all  this lesson introduces one more rudiment about GPIO. We learned in  lesson1 about how can we enable output to any GPIO pin. In our case  it was the 16th  GPIO pin or ACT LED on Raspberry Pi. We turned the LED on by enabling output to  the 16th GPIO pin.  This lesson just modifies the previous lesson by turning the led on  and off repeatedly. The new thing to learn in this lesson is how to  disable output to any GPIO pin. Like we can enable output to any GPIO  pin by setting the appropriate bit in Output Clear Register, in the  similar way we can disable output to any GPIO pin by setting the  appropriate bit in Output Set Register to 1.                            Reading the manual I found the following details about Output Set  Registers </p>
+  <p> </p>
+  <TABLE WIDTH="638" BORDER="1" BORDERCOLOR="#00000a" CELLPADDING="7" CELLSPACING="0">
+    <COL WIDTH="113">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="113">
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>Physical Address</p></TD>
+      <TD WIDTH="114"><p>Field Name</p></TD>
+      <TD WIDTH="114"><p>Description</p></TD>
+      <TD WIDTH="114"><p>Size(bits)</p></TD>
+      <TD WIDTH="113"><p>Read/Write</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x2020001C</p></TD>
+      <TD WIDTH="114"><p>GPSET0</p></TD>
+      <TD WIDTH="114"><p>GPIO Pin Output Set 0</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x20200020</p></TD>
+      <TD WIDTH="114"><p>GPSET1</p></TD>
+      <TD WIDTH="114"><p>GPIO Pin Output Set 1</p></TD>
+      <TD WIDTH="114"><p>32</p></TD>
+      <TD WIDTH="113"><p>R/W</p></TD>
+    </TR>
+  </TABLE>
+  <p><BR>
+  </p>
+  <p>GPIO Output Set Register 0</p>
+  <TABLE WIDTH="638" BORDER="1" BORDERCOLOR="#00000a" CELLPADDING="7" CELLSPACING="0">
+    <COL WIDTH="113">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="113">
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>Bit</p></TD>
+      <TD WIDTH="114"><p>Field Name</p></TD>
+      <TD WIDTH="114"><p>Description</p></TD>
+      <TD WIDTH="114"><p>Type</p></TD>
+      <TD WIDTH="113"><p>Reset</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>31-0</p></TD>
+      <TD WIDTH="114"><p>SETn(n= 0..31)</p></TD>
+      <TD WIDTH="114"><p>0 = No effect</p>
+        <p>1 = Set GPIO pin n</p></TD>
+      <TD WIDTH="114"><p>R/W</p></TD>
+      <TD WIDTH="113"><p>0</p></TD>
+    </TR>
+  </TABLE>
+  <p><BR>
+  </p>
+  <p>GPIO Output Set Register 1</p>
+  <TABLE WIDTH="638" BORDER="1" BORDERCOLOR="#00000a" CELLPADDING="7" CELLSPACING="0">
+    <COL WIDTH="113">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="113">
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>Bit</p></TD>
+      <TD WIDTH="114"><p>Field Name</p></TD>
+      <TD WIDTH="114"><p>Description</p></TD>
+      <TD WIDTH="114"><p>Type</p></TD>
+      <TD WIDTH="113"><p>Reset</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>31-22</p></TD>
+      <TD WIDTH="114"><p>-</p></TD>
+      <TD WIDTH="114"><p>Reserved</p></TD>
+      <TD WIDTH="114"><p>R</p></TD>
+      <TD WIDTH="113"><p>0</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0-21</p></TD>
+      <TD WIDTH="114"><p>SETn(n=32 .. 53)</p></TD>
+      <TD WIDTH="114"><p>0 = No effect</p>
+        <p>1 = Set GPIO pin n </p></TD>
+      <TD WIDTH="114"><p>R/W</p></TD>
+      <TD WIDTH="113"><p>0</p></TD>
+    </TR>
+  </TABLE>
+  <p><BR>
+  </p>
+  <p>So in order to disable  output to the 16th  GPIO what I did was just to set 16th  bit of the Output Set Register 0 to 1.<br />
+  </p>
+  <p>
+  <a href="downloads/ok02.zip">Complete Solution Of this Lesson</a> </p>
+</div>
+</div>
+
+<div id="left"> 
+
+<h3>Web Site Materials</h3>
+<ul>
+<li><a href="index.html">Introduction</a></li> 
+<li><a href="ok01.html">Lesson 1 OK01</a></li> 
+<li><a href="ok02.html">Lesson 2 OK02</a></li> 
+<li><a href="ok03.html">Lesson 3 OK03</a></li>
+<li><a href="ok04.html">Lesson 4 OK04</a></li> 
+<li><a href="ok05.html">Lesson 5 OK05</a></li> 
+<li><a href="screen01.html">Lesson 6 Screen01</a></li> 
+<li><a href="screen02.html">Lesson 7 Screen02</a></li> 
+<li><a href="screen03.html">Lesson 8 Screen03</a></li>
+<li><a href="downloads.html">Downloads</a></li>
+<li><a href="credits.html">Credits</a></li>
+<li><a href="process-scheduling.html">Process Scheduling Project</a></li>
+</ul>
+
+</div>
+<div style="clear: both;"> </div>
+
+<div id="footer">
+Created by <a href="http://www.maxtergo.com/">Team Maxtergo</a>
+</div>
+
+
+
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>FAST NU | BPC</title>
+<meta http-equiv="Content-Language" content="English" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+
+<div id="wrap">
+<div id="header">
+</br>
+</br>
+<h1>Baking Pi On C</h1>
+<h3>A guide to make Operating System on Raspberry Pi in C</h3>
+</div>
+
+<div id="right">
+
+<h2><a href="#">Lesson 4 Ok04</a></h2>
+<div class="articles">
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+  <HTML>
+  <!--  		@page { margin: 0.79in }  		P { margin-bottom: 0.08in }  		A:link { so-language: zxx }  	-->
+  <BODY DIR="LTR">
+  <p>So far we have only looked  at one piece of hardware on the Raspberry Pi, namely the <strong>GPIO  controller</strong>. Now we will be looking at another  piece of hardware which is <strong>timer</strong>.  The timer is the only way through whichRaspberry Pi can keep time. I will try  to explain you how timer works by creating a wait function which will  use the system timer to create delay. </p>
+  <p>Put the following code in  a file named system_timer.c</p>
+  <div class="codes">
+    <p>#include &lt;sys/types.h&gt;<br>
+      <br>
+      /* System timer base address */<br>
+      #define SYSTEM_TIMER_BASE 0x20003000 </p>
+    <p>int GetTimeStamp(void) ;<br>
+      void Wait(register long int delay);</p>
+    <p>/*<br>
+      * The method returns the lower 32 bits of the current counter value<br>
+      */<br>
+      int GetTimeStamp(void){<br>
+      register long int time = *( (unsigned int *)(SYSTEM_TIMER_BASE + 4) ); <br>
+      return time;<br>
+      }</p>
+    <p>/*<br>
+      *	Given the amount of time to delay as input, the function waits<br>
+      *	by using the System timer initial counter value and current <br>
+      *	counter value.<br>
+      * <br>
+      */<br>
+      void Wait(register long int delay){<br>
+      register long int start, elapsed;</p>
+    <p> /* Obatining the initial counter value. This value is obtained only once */<br>
+      start = GetTimeStamp();<br>
+  <br>
+      /* Obtaining the difference of the current counter value and the initial counter value */<br>
+      elapsed = ( GetTimeStamp() - start );</p>
+    <p> /* Waiting untill the difference of the current counter value and the initial counter value is less then the time to delay */<br>
+      while( elapsed &lt;= delay ){<br>
+      elapsed = (GetTimeStamp() - start);<br>
+      }<br>
+      }<br>
+    </p>
+  </div>
+  <p>Description : The code  above provided just creates delay by using the System timer. The  important components of the System timer that I have used are  summarized below</p>
+  <TABLE WIDTH="638" BORDER="1" BORDERCOLOR="#00000a" CELLPADDING="7" CELLSPACING="0">
+    <COL WIDTH="113">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="114">
+    <COL WIDTH="113">
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>Physical Address</p></TD>
+      <TD WIDTH="114"><p>Size/Bytes</p></TD>
+      <TD WIDTH="114"><p>Name</p></TD>
+      <TD WIDTH="114"><p>Description</p></TD>
+      <TD WIDTH="113"><p>Read or Write</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x20003000</p></TD>
+      <TD WIDTH="114"><p>4</p></TD>
+      <TD WIDTH="114"><p>Control/Status</p></TD>
+      <TD WIDTH="114"><p>Register used to control and clear timer channel  			comparator matches</p></TD>
+      <TD WIDTH="113"><p>RW</p></TD>
+    </TR>
+    <TR VALIGN="TOP">
+      <TD WIDTH="113"><p>0x20003004</p></TD>
+      <TD WIDTH="114"><p>8</p></TD>
+      <TD WIDTH="114"><p>Counter</p></TD>
+      <TD WIDTH="114"><p>A counter that increments at 1Mhz</p></TD>
+      <TD WIDTH="113"><p>R</p></TD>
+    </TR>
+  </TABLE>
+  <p><BR>
+  </p>
+  <p>Counter is just an 8 byte  register which increments by 1 every 1 micro second.</p>
+  <p>Now replace the following  code in execute.c by the following</p>
+  <div class="codes">
+    <p>#include &lt;sys/types.h&gt;</p>
+    <p>void execute(void);<br>
+      <br>
+      /* Base address of Function Select Register 0 */<br>
+      #define GPIO_BASE 0x20200000</p>
+    <p>/* Base address of Function Select Register 1 */<br>
+      #define GPIO_PIN_FUNC (GPIO_BASE+4)</p>
+    <p>/* Base address of Output Set Register 0 */<br>
+      #define GPIO_PIN_ON (GPIO_BASE+28)</p>
+    <p>/* Base address of Output Clear Register 0 */<br>
+      #define GPIO_PIN_OFF (GPIO_BASE+40)</p>
+    <p>/*<br>
+      *	The function repeatedly turn on and turn off the 16th GPIO pin<br>
+      */<br>
+      void execute(void) { <br>
+      register long int pinNum = 16;<br>
+      /* Setting the amount of time we want to delay in Micro seconds */<br>
+      int delay = 50000;<br>
+      pinNum=16;</p>
+    <p> /* Defining output operation to the 16th GPIO */<br>
+      SetGpioFunction(pinNum,1);<br>
+      while( 1 == 1 ){<br>
+      /* Turning on the ACT LED */<br>
+      SetGpio(pinNum, 0); <br>
+      /* Creating delay using the wait method we implemented */<br>
+      Wait(delay);<br>
+      /* Turning off the ACT LED */<br>
+      SetGpio(pinNum, 1); <br>
+      /* Creating delay using the wait method we implemented */<br>
+      Wait(delay);<br>
+      }<br>
+      }</p>
+    <p></p>
+  </div>
+  <p>Description: The only  change made in the code is the replacement of wait implementation.  Previously we were creating delay without using system timer and now  delay is created using the system timer.</p>
+  <p>
+  <a href="downloads/ok04.zip">Complete Solution Of this Lesson</a> </p>
+</div>
+</div>
+
+<div id="left"> 
+
+<h3>Web Site Materials</h3>
+<ul>
+<li><a href="index.html">Introduction</a></li> 
+<li><a href="ok01.html">Lesson 1 OK01</a></li> 
+<li><a href="ok02.html">Lesson 2 OK02</a></li> 
+<li><a href="ok03.html">Lesson 3 OK03</a></li>
+<li><a href="ok04.html">Lesson 4 OK04</a></li> 
+<li><a href="ok05.html">Lesson 5 OK05</a></li> 
+<li><a href="screen01.html">Lesson 6 Screen01</a></li> 
+<li><a href="screen02.html">Lesson 7 Screen02</a></li> 
+<li><a href="screen03.html">Lesson 8 Screen03</a></li>
+<li><a href="downloads.html">Downloads</a></li>
+<li><a href="credits.html">Credits</a></li>
+<li><a href="process-scheduling.html">Process Scheduling Project</a></li>
+</ul>
+
+</div>
+<div style="clear: both;"> </div>
+
+<div id="footer">
+Created by <a href="http://www.maxtergo.com/">Team Maxtergo</a>
+</div>
+
+
+
+</div>
+
+
+</body>
+</html>
